@@ -102,6 +102,11 @@ const onDetect = (detectedCodes: DetectedBarcode[]) => {
         <span>CapDB</span>
       </h1>
       <div class="m-3 p-3 rounded-lg bg-white">
+        <div>
+          <span>
+            ｛｛｝｝
+          </span>
+        </div>
         <QrcodeStream @detect="onDetect" :formats="['ean_13']"></QrcodeStream>
 
       </div>
