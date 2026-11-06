@@ -1,12 +1,35 @@
 <script setup lang="ts">
 import { QrcodeStream, type DetectedBarcode } from 'vue-qrcode-reader'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const cameraEnabled = ref(false)
 const error = ref('')
 const ready = ref(false)
+const cameras = ref<MediaDeviceInfo[]>([])
+const selectedCamera = ref('')
+// Prefer enough detail for JAN bars without rejecting lower-resolution cameras.
+const cameraConstraints = computed<MediaTrackConstraints>(() => ({
+  ...(selectedCamera.value
+    ? { deviceId: { exact: selectedCamera.value } }
+    : { facingMode: { ideal: 'environment' } }),
+  width: { ideal: 1920 },
+  height: { ideal: 1080 },
+}))
+
+async function onCameraReady() {
+  ready.value = true
+  // Camera permission must be granted before enumerating devices on iOS.
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    cameras.value = devices.filter((device) => device.kind === 'videoinput' && device.deviceId)
+  } catch {
+    // Scanning still works when the browser cannot list cameras.
+    cameras.value = []
+  }
+}
+
 function onDetect(codes: DetectedBarcode[]) {
   if (codes[0]) void router.push({ path: '/timer', query: { jan: codes[0].rawValue } })
 }
@@ -18,6 +41,7 @@ function openCamera() {
 function onError() {
   error.value = 'カメラを利用できませんでした。ブラウザのカメラ権限と接続を確認してください。'
   cameraEnabled.value = false
+  selectedCamera.value = ''
 }
 </script>
 
@@ -30,15 +54,30 @@ function onError() {
     <template v-if="cameraEnabled"
       ><div class="camera-view">
         <QrcodeStream
+          :constraints="cameraConstraints"
           :formats="['ean_13']"
           @detect="onDetect"
           @error="onError"
-          @camera-on="ready = true"
+          @camera-on="onCameraReady"
         />
       </div>
       <p role="status">
         {{ ready ? 'バーコードをカメラに向けてください' : 'カメラを起動しています…' }}
       </p>
+      <div v-if="cameras.length > 1" class="camera-selector">
+        <label for="scanner-camera">使用するカメラ</label>
+        <select id="scanner-camera" v-model="selectedCamera" @change="ready = false">
+          <option value="">背面カメラ（自動）</option>
+          <option
+            v-for="(camera, index) in cameras"
+            :key="camera.deviceId"
+            :value="camera.deviceId"
+          >
+            {{ camera.label || `カメラ ${index + 1}` }}
+          </option>
+        </select>
+        <p>ぼやける場合は、別のカメラに切り替えてください。</p>
+      </div>
       <button class="button secondary" @click="cameraEnabled = false">
         カメラを閉じる
       </button></template
