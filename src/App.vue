@@ -5,16 +5,16 @@ const destinations = [
   { name: 'タイマー', path: '/timer', icon: 'mdi-timer-outline' },
   { name: '読み込み', path: '/read', icon: 'mdi-barcode-scan' },
   { name: '履歴', path: '/', icon: 'mdi-history' },
-  { name: 'CapDBについて', path: '/about', icon: 'mdi-information-outline' },
+  { name: 'RamenTimerについて', path: '/about', icon: 'mdi-information-outline' },
 ]
 </script>
 
 <template>
   <div class="app-shell">
     <aside class="sidebar">
-      <RouterLink to="/timer" class="brand" aria-label="CapDB タイマーへ">
+      <RouterLink to="/timer" class="brand" aria-label="RamenTimer タイマーへ">
         <img src="/twemoji_ramen.png" alt="" width="40" height="40" />
-        <span>CapDB<small>カップ麺の、待ち時間に。</small></span>
+        <span>RamenTimer</span>
       </RouterLink>
       <nav class="navigation" aria-label="メインナビゲーション">
         <RouterLink
@@ -28,7 +28,6 @@ const destinations = [
           <span>{{ item.name }}</span>
         </RouterLink>
       </nav>
-      <p class="sidebar-note">お湯を注いで、ひと休み。</p>
     </aside>
     <main class="main-content"><RouterView /></main>
   </div>

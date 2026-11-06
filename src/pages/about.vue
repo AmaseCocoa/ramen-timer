@@ -1,7 +1,6 @@
 <template>
   <header class="page-heading">
-    <p class="eyebrow">カップ麺の、待ち時間に。</p>
-    <h1>CapDBについて</h1>
+    <h1>RamenTimerについて</h1>
     <p>JANコードから、カップ麺の調理時間を調べるツールです。</p>
   </header>
   <article class="about-content">
@@ -17,11 +16,11 @@
     <section>
       <h2>商品のデータについて</h2>
       <p>
-        商品情報は公開データリポジトリ capdb-data
+        商品情報は公開データリポジトリ ramen-db
         から取得します。未登録の商品や、パッケージの変更が反映されていない商品もあります。調理するときは、実際のパッケージに書かれた手順・時間を確認してください。
       </p>
       <a
-        href="https://github.com/AmaseCocoa/capdb-data"
+        href="https://github.com/AmaseCocoa/ramen-db"
         class="text-link"
         target="_blank"
         rel="noopener noreferrer"

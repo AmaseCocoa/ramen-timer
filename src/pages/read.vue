@@ -23,7 +23,6 @@ function onError() {
 
 <template>
   <header class="page-heading">
-    <p class="eyebrow">一杯を、見つける。</p>
     <h1>バーコード読み込み</h1>
     <p>カップ麺のバーコードから、待ち時間を設定します。</p>
   </header>

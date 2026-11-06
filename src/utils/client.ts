@@ -20,7 +20,7 @@ export const fetchJanCode = async (code: string): Promise<CapDBData | null> => {
   if (!separatedCode) return null
 
   const resp = await fetch(
-    `https://raw.githack.com/AmaseCocoa/capdb-data/main/data/${separatedCode.country}/${separatedCode.company}/${separatedCode.product}.json`,
+    `https://raw.githack.com/AmaseCocoa/ramen-db/main/data/${separatedCode.country}/${separatedCode.company}/${separatedCode.product}.json`,
   )
   if (resp.status !== 200) return null
 

@@ -52,7 +52,7 @@ watch(() => props.seconds, handleReset)
         <span class="timer-digits" role="timer" :aria-label="`残り ${formattedTime}`">{{
           formattedTime
         }}</span>
-        <span class="timer-caption">{{ finished ? 'おいしく召し上がれ' : '残り時間' }}</span>
+        <span class="timer-caption">残り時間</span>
       </div>
     </div>
     <p class="sr-only" role="status">{{ status }}</p>

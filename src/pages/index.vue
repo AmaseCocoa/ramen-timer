@@ -7,9 +7,8 @@ const dateFormat = new Intl.DateTimeFormat('ja-JP', { dateStyle: 'medium', timeS
 
 <template>
   <header class="page-heading">
-    <p class="eyebrow">これまでの一杯。</p>
     <h1>履歴</h1>
-    <p>読み取った商品を、新しい順に。商品を選ぶとタイマーを開けます。</p>
+    <p>新しい順に読み取った商品を一覧表示します。商品を選ぶとタイマーを開けます。</p>
   </header>
   <p v-if="storageError" class="feedback" role="status">{{ storageError }}</p>
   <template v-if="entries.length">

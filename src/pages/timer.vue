@@ -14,7 +14,7 @@ const lookupFailed = ref(false)
 const jan = computed(() => (typeof route.query.jan === 'string' ? route.query.jan : ''))
 const product = ref<CapDBData | null>(null)
 const dataRequestUrl = computed(() => {
-  const url = new URL('https://github.com/AmaseCocoa/capdb-data/issues/new')
+  const url = new URL('https://github.com/AmaseCocoa/ramen-db/issues/new')
   url.search = new URLSearchParams({
     template: 'data_request.yaml',
     title: '[データ追加・修正]: [ここに商品名]',
@@ -99,9 +99,7 @@ function applyDuration() {
 
 <template>
   <header class="page-heading">
-    <p class="eyebrow">おいしい時間を、きっちり。</p>
     <h1>タイマー</h1>
-    <p>お湯を注いだら、スタート。</p>
   </header>
   <section class="timer-layout" aria-label="カップ麺タイマー">
     <div class="timer-panel">
@@ -147,7 +145,7 @@ function applyDuration() {
       </section>
       <p v-if="storageError" role="status" class="feedback">{{ storageError }}</p>
       <h2>待ち時間</h2>
-      <p>パッケージに書かれた時間を入力してね。</p>
+      <p>パッケージに書かれた時間を入力してください。</p>
       <form class="duration-form" @submit.prevent="applyDuration">
         <div class="duration-fields">
           <label for="duration-minutes"
@@ -212,7 +210,7 @@ function applyDuration() {
       </div>
       <div class="scan-note">
         <span class="note-icon mdi mdi-barcode-scan" aria-hidden="true"></span>
-        <h2>バーコードから、かんたんに。</h2>
+        <h2>バーコードから設定する</h2>
         <p>対応商品のバーコードを読み込むと、待ち時間を自動で設定できます。</p>
         <RouterLink to="/read" class="text-link"
           >バーコードを読み込む <i class="mdi mdi-arrow-right" aria-hidden="true"></i
