@@ -1,35 +1,36 @@
-import { fileURLToPath, URL } from 'node:url'
+import { fileURLToPath, URL } from "node:url";
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import VueRouter from 'vue-router/vite'
-import vueDevTools from 'vite-plugin-vue-devtools'
-import ViteFonts from 'unplugin-fonts/vite'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import VueRouter from "vue-router/vite";
+import vueDevTools from "vite-plugin-vue-devtools";
+import ViteFonts from "unplugin-fonts/vite";
 
-import tailwindcss from '@tailwindcss/vite'
+import tailwindcss from "@tailwindcss/vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
 export default defineConfig(async ({ command }) => {
-  let dataTag = ''
-  if (command === 'build') {
+  let dataTag = "";
+  if (command === "build") {
     const response = await fetch(
-      'https://api.github.com/repos/AmaseCocoa/ramen-db/tags?per_page=1',
+      "https://api.github.com/repos/AmaseCocoa/ramen-db/tags?per_page=1",
       {
         headers: {
-          Accept: 'application/vnd.github+json',
+          Accept: "application/vnd.github+json",
           ...(process.env.GITHUB_TOKEN
             ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
             : {}),
         },
         signal: AbortSignal.timeout(15_000),
       },
-    )
-    if (!response.ok) throw new Error(`Failed to fetch ramen-db tags: ${response.status}`)
+    );
+    if (!response.ok) throw new Error(`Failed to fetch ramen-db tags: ${response.status}`);
 
-    const tags = (await response.json()) as { name: string }[]
-    if (!tags[0]?.name) throw new Error('ramen-db has no tags')
-    dataTag = tags[0].name
-    console.info(`Using ramen-db tag: ${dataTag}`)
+    const tags = (await response.json()) as { name: string }[];
+    if (!tags[0]?.name) throw new Error("ramen-db has no tags");
+    dataTag = tags[0].name;
+    console.info(`Using ramen-db tag: ${dataTag}`);
   }
 
   return {
@@ -40,13 +41,37 @@ export default defineConfig(async ({ command }) => {
       VueRouter({}),
       vue(),
       vueDevTools(),
+      VitePWA({
+        devOptions: { enabled: true },
+        manifest: {
+          name: "RamenTimer",
+          icons: [
+            {
+              sizes: "192x192",
+              src: "icon-192x192.png",
+              type: "image/png",
+            },
+            {
+              sizes: "512x512",
+              src: "icon-512x512.png",
+              type: "image/png",
+            },
+            {
+              sizes: "512x512",
+              src: "icon-512x512.png",
+              type: "image/png",
+              purpose: "maskable",
+            },
+          ],
+        },
+      }),
       ViteFonts({
         fontsource: {
           families: [
             {
-              name: 'Roboto',
+              name: "Roboto",
               weights: [100, 300, 400, 500, 700, 900],
-              styles: ['normal', 'italic'],
+              styles: ["normal", "italic"],
             },
           ],
         },
@@ -55,8 +80,8 @@ export default defineConfig(async ({ command }) => {
     ],
     resolve: {
       alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
     },
-  }
-})
+  };
+});
