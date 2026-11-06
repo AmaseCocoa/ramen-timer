@@ -15,12 +15,16 @@ export interface CapDBData {
   }
 }
 
+const dataBaseUrl = import.meta.env.PROD
+  ? `https://rawcdn.githack.com/AmaseCocoa/ramen-db/${encodeURIComponent(__RAMEN_DB_TAG__)}/data`
+  : 'https://raw.githack.com/AmaseCocoa/ramen-db/main/data'
+
 export const fetchJanCode = async (code: string): Promise<CapDBData | null> => {
   const separatedCode = separateJanCode(code)
   if (!separatedCode) return null
 
   const resp = await fetch(
-    `https://raw.githack.com/AmaseCocoa/ramen-db/main/data/${separatedCode.country}/${separatedCode.company}/${separatedCode.product}.json`,
+    `${dataBaseUrl}/${separatedCode.country}/${separatedCode.company}/${separatedCode.product}.json`,
   )
   if (resp.status !== 200) return null
 
