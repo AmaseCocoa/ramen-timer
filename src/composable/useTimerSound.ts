@@ -34,7 +34,6 @@ export function useTimerSound() {
     }
     isSounding.value = true
     const now = context.currentTime
-    // 3音を1セットとして、3秒おきに最大5セット鳴らす。
     for (let index = 0; index < 15; index++) {
       const tone = context.createOscillator()
       const volume = context.createGain()
