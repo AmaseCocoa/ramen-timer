@@ -46,5 +46,16 @@
         >タイマーを使う <i class="mdi mdi-arrow-right" aria-hidden="true"></i
       ></RouterLink>
     </section>
+    <section>
+      <h2>ソースコード</h2>
+      <a
+        href="https://github.com/AmaseCocoa/capdb"
+        class="text-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        >GitHubリポジトリを見る <i class="mdi mdi-open-in-new" aria-hidden="true"></i
+        ><span class="sr-only">（新しいタブ）</span></a
+      >
+    </section>
   </article>
 </template>
