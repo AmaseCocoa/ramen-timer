@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { fetchJanCode } from '@/utils/client'
+import { fetchJanCode, type CapDBData } from '@/utils/client'
+import { useProductHistory } from '@/composable/useProductHistory'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { computedAsync } from '@vueuse/core'
 import TimerUI from '@/components/TimerUI.vue'
 
 const route = useRoute()
@@ -12,21 +12,57 @@ const inputSeconds = ref<number | string>(0)
 const loading = ref(false)
 const lookupFailed = ref(false)
 const jan = computed(() => (typeof route.query.jan === 'string' ? route.query.jan : ''))
-const product = computedAsync(
-  async () => {
-    lookupFailed.value = false
-    if (!jan.value) return null
-    try {
-      const result = await fetchJanCode(jan.value)
-      if (result && result.wait_seconds > 0) return result
-    } catch {
-      /* 手動タイマーを利用できる状態に戻す */
-    }
-    lookupFailed.value = true
+const product = ref<CapDBData | null>(null)
+const dataRequestUrl = computed(() => {
+  const url = new URL('https://github.com/AmaseCocoa/capdb-data/issues/new')
+  url.search = new URLSearchParams({
+    template: 'data_request.yaml',
+    title: '[データ追加・修正]: [ここに商品名]',
+    'jan-code': jan.value,
+  }).toString()
+  return url.href
+})
+const { record, storageError } = useProductHistory()
+const officialUrl = computed(() => {
+  try {
+    const url = new URL(product.value?.links?.official ?? '')
+    return ['https:', 'http:'].includes(url.protocol) ? url.href : null
+  } catch {
     return null
+  }
+})
+watch(
+  jan,
+  async (code, _, onCleanup) => {
+    let stale = false
+    onCleanup(() => {
+      stale = true
+    })
+    product.value = null
+    lookupFailed.value = false
+    loading.value = !!code
+    if (!code) return
+    try {
+      const result = await fetchJanCode(code)
+      if (stale) return
+      if (
+        result &&
+        Number.isSafeInteger(result.wait_seconds) &&
+        result.wait_seconds > 0 &&
+        typeof result.name === 'string' &&
+        typeof result.has_drain === 'boolean'
+      ) {
+        product.value = result
+        setDuration(result.wait_seconds)
+        record(result, code)
+      } else lookupFailed.value = true
+    } catch {
+      if (!stale) lookupFailed.value = true
+    } finally {
+      if (!stale) loading.value = false
+    }
   },
-  null,
-  { evaluating: loading },
+  { immediate: true },
 )
 const seconds = computed(() => selectedSeconds.value)
 const validDuration = computed(() => {
@@ -59,9 +95,6 @@ function setDuration(total: number) {
 function applyDuration() {
   if (validDuration.value) setDuration(Number(inputMinutes.value) * 60 + Number(inputSeconds.value))
 }
-watch(product, (value) => {
-  if (value) setDuration(value.wait_seconds)
-})
 </script>
 
 <template>
@@ -81,6 +114,38 @@ watch(product, (value) => {
       <TimerUI :key="`${jan}-${seconds}`" :seconds="seconds" />
     </div>
     <aside class="timer-settings">
+      <section v-if="product" class="product-details" aria-labelledby="product-name">
+        <p class="eyebrow">読み取った商品</p>
+        <h2 id="product-name">{{ product.name }}</h2>
+        <dl>
+          <div>
+            <dt>JANコード</dt>
+            <dd>{{ jan }}</dd>
+          </div>
+          <div>
+            <dt>商品の待ち時間</dt>
+            <dd>
+              {{ Math.floor(product.wait_seconds / 60) }} 分<span v-if="product.wait_seconds % 60">
+                {{ product.wait_seconds % 60 }} 秒</span
+              >
+            </dd>
+          </div>
+          <div>
+            <dt>湯切り</dt>
+            <dd>{{ product.has_drain ? 'あり' : 'なし' }}</dd>
+          </div>
+        </dl>
+        <a
+          v-if="officialUrl"
+          :href="officialUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-link"
+          >公式の商品情報 <i class="mdi mdi-open-in-new" aria-hidden="true"></i
+          ><span class="sr-only">（新しいタブ）</span></a
+        >
+      </section>
+      <p v-if="storageError" role="status" class="feedback">{{ storageError }}</p>
       <h2>待ち時間</h2>
       <p>パッケージに書かれた時間を入力してね。</p>
       <form class="duration-form" @submit.prevent="applyDuration">
@@ -132,9 +197,19 @@ watch(product, (value) => {
         </button>
       </div>
       <p v-if="loading" role="status" class="feedback">商品を確認しています…</p>
-      <p v-if="lookupFailed" role="status" class="feedback">
-        商品が見つからないか、取得できませんでした。待ち時間を入力して使えます。
-      </p>
+      <div v-if="lookupFailed" class="feedback">
+        <p role="status">
+          商品が見つからないか、取得できませんでした。待ち時間を入力して使えます。
+        </p>
+        <p>
+          未登録の商品は、GitHubからデータの追加を依頼できます。商品名を入力して送信してください。
+        </p>
+        <a :href="dataRequestUrl" class="text-link" target="_blank" rel="noopener noreferrer">
+          商品データの追加を依頼する
+          <i class="mdi mdi-open-in-new" aria-hidden="true"></i>
+          <span class="sr-only">（新しいタブ）</span>
+        </a>
+      </div>
       <div class="scan-note">
         <span class="note-icon mdi mdi-barcode-scan" aria-hidden="true"></span>
         <h2>バーコードから、かんたんに。</h2>

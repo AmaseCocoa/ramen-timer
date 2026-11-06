@@ -5,6 +5,7 @@ const destinations = [
   { name: 'タイマー', path: '/timer', icon: 'mdi-timer-outline' },
   { name: '読み込み', path: '/read', icon: 'mdi-barcode-scan' },
   { name: '履歴', path: '/', icon: 'mdi-history' },
+  { name: 'CapDBについて', path: '/about', icon: 'mdi-information-outline' },
 ]
 </script>
 

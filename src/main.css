@@ -547,3 +547,126 @@ h1 {
   font-size: 11px;
   margin: 10px 0 14px;
 }
+
+.product-details {
+  padding: 24px;
+  margin-bottom: 28px;
+  background: var(--container);
+  border-radius: 24px;
+  overflow-wrap: anywhere;
+}
+.product-details .eyebrow {
+  margin: 0 0 8px;
+  color: var(--primary);
+}
+.product-details h2 {
+  font-size: 20px;
+  line-height: 1.6;
+}
+.product-details dl {
+  margin: 20px 0 0;
+  font-size: 13px;
+}
+.product-details dl div {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.product-details dt {
+  color: var(--muted);
+}
+.product-details dd {
+  margin: 0;
+}
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+  display: grid;
+  gap: 12px;
+}
+.history-item {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 12px;
+  gap: 8px;
+}
+.history-link {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 20px;
+  padding: 12px;
+  border-radius: 16px;
+}
+.history-link:hover {
+  background: var(--soft);
+}
+.history-icon {
+  background: var(--container);
+  color: var(--primary);
+  padding: 16px;
+  border-radius: 20px;
+}
+.history-copy {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.history-copy strong {
+  font-size: 16px;
+}
+.history-copy > span,
+.history-copy time,
+.history-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.history-remove {
+  padding: 12px;
+  min-height: 48px;
+}
+.about-content {
+  background: var(--surface);
+  border-radius: 32px;
+  padding: clamp(24px, 4vw, 48px);
+  max-width: 800px;
+}
+.about-content section + section {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--outline);
+}
+.about-content h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+.about-content p {
+  font-size: 14px;
+  line-height: 2;
+  color: var(--muted);
+}
+.about-content p + p {
+  margin-top: 16px;
+}
+@media (max-width: 600px) {
+  .history-link {
+    gap: 12px;
+    padding: 8px;
+  }
+  .history-icon {
+    display: none;
+  }
+  .navigation .nav-link {
+    font-size: 10px;
+    padding-inline: 4px;
+  }
+}
