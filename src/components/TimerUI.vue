@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useTimerSound } from '@/composable/useTimerSound'
 import { useTimeFormatter } from '@/composable/useTimeFormatter'
 import { useCountdown } from '@vueuse/core'
 import { computed, ref, toRef, watch } from 'vue'
@@ -7,6 +8,7 @@ const props = defineProps<{ seconds: number }>()
 const { remaining, isActive, start, pause, resume, reset } = useCountdown(toRef(props, 'seconds'))
 const { formattedTime } = useTimeFormatter(remaining)
 const isInitial = ref(true)
+const { soundError, isSounding, prepareSound, playSound, stopSound } = useTimerSound()
 const finished = computed(() => !isInitial.value && remaining.value === 0)
 const progress = computed(() =>
   props.seconds > 0 ? Math.max(0, Math.min(1, remaining.value / props.seconds)) : 0,
@@ -22,15 +24,28 @@ const status = computed(() =>
 )
 
 function handleStart() {
+  stopSound()
+  void prepareSound()
   isInitial.value = false
   start()
 }
+function handleToggle() {
+  if (isActive.value) pause()
+  else {
+    void prepareSound()
+    resume()
+  }
+}
 function handleReset() {
+  stopSound()
   pause()
   reset()
   isInitial.value = true
 }
 watch(() => props.seconds, handleReset)
+watch(finished, (value) => {
+  if (value) playSound()
+})
 </script>
 
 <template>
@@ -56,12 +71,16 @@ watch(() => props.seconds, handleReset)
       </div>
     </div>
     <p class="sr-only" role="status">{{ status }}</p>
+    <p v-if="soundError" class="feedback" role="status">{{ soundError }}</p>
     <div class="timer-actions">
-      <button v-if="isInitial || finished" class="button primary" @click="handleStart">
+      <button v-if="isSounding" class="button primary" @click="stopSound">
+        <i class="mdi mdi-volume-off" aria-hidden="true"></i>音を止める
+      </button>
+      <button v-else-if="isInitial || finished" class="button primary" @click="handleStart">
         <i class="mdi mdi-play" aria-hidden="true"></i
         >{{ finished ? 'もう一度スタート' : 'スタート' }}
       </button>
-      <button v-else class="button primary" @click="isActive ? pause() : resume()">
+      <button v-else class="button primary" @click="handleToggle">
         <i :class="['mdi', isActive ? 'mdi-pause' : 'mdi-play']" aria-hidden="true"></i
         >{{ isActive ? '一時停止' : '再開' }}
       </button>
