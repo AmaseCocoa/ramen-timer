@@ -9,7 +9,8 @@ on:
 
 permissions:
   contents: read
-
+  deployments: write
+  
 concurrency:
   group: cloudflare-production
   cancel-in-progress: false
@@ -36,3 +37,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+          environment: production
