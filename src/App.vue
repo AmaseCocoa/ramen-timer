@@ -1,112 +1,42 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import RamenIcon from './assets/twemoji_ramen.png';
-import { QrcodeStream, type DetectedBarcode } from 'vue-qrcode-reader'
+import { RouterLink, RouterView } from 'vue-router'
 
-export interface JanSplitResult {
-  readonly country: string;
-  readonly company: string;
-  readonly product: string;
-  readonly cd: string;
-}
-
-interface CapDBData {
-  readonly jan: string;
-  readonly name: string;
-  readonly has_drain: boolean;
-  readonly wait_minutes: number;
-  readonly links: {
-    readonly official: string;
-  };
-}
-
-const fetchJanCode = async (code: string): Promise<CapDBData | null> => {
-  const separatedCode = separateJanCode(code);
-  if (!separatedCode) return null
-
-  const resp = await fetch(`https://raw.githack.com/AmaseCocoa/capdb-data/main/data/${separatedCode.country}/${separatedCode.company}/${separatedCode.product}.json`)
-  if (resp.status !== 200) return null
-
-  const data: CapDBData = await resp.json()
-  return Object.freeze(data)
-}
-
-const separateJanCode = (code: string): JanSplitResult | null => {
-  if (code.length !== 13 || !/^\d+$/.test(code)) {
-    return null;
-  }
-
-  const prefix5 = parseInt(code.substring(0, 5), 10);
-  const cd = code.slice(-1);
-
-  const isJapan = code.startsWith("45") || code.startsWith("49");
-  if (!isJapan) {
-    return null;
-  }
-
-  const country = code.substring(0, 3);
-
-  let companyLength = 8;
-
-  if (
-    (prefix5 >= 49010 && prefix5 <= 49099) ||
-    (prefix5 >= 49100 && prefix5 <= 49199) ||
-    (prefix5 >= 49200 && prefix5 <= 49204)
-  ) {
-    companyLength = 6;
-  }
-  else if (
-    (prefix5 >= 45700 && prefix5 <= 45709) ||
-    (prefix5 >= 45731 && prefix5 <= 45735) ||
-    (prefix5 >= 45800 && prefix5 <= 45809) ||
-    (prefix5 >= 45825 && prefix5 <= 45826) ||
-    (prefix5 >= 45894 && prefix5 <= 45898) ||
-    (prefix5 >= 45951 && prefix5 <= 45959)
-  ) {
-    companyLength = 9;
-  }
-
-  const company = code.substring(3, 3 + companyLength);
-
-  const product = code.substring(3 + companyLength, 12);
-
-  return Object.freeze({
-    country,
-    company,
-    product,
-    cd
-  } as const);
-};
-
-
-
-const onDetect = (detectedCodes: DetectedBarcode[]) => {
-  if (!detectedCodes || detectedCodes.length === 0 || !detectedCodes[0]) return
-
-
-  const firstDetected = detectedCodes[0]
-  const janCode = firstDetected.rawValue
-
-  console.log(janCode)
-
-  console.log(fetchJanCode(janCode))
-}
+const tabs = [
+  { id: 'history', name: '履歴', path: '/' },
+  { id: 'timer', name: 'タイマー', path: '/timer' },
+  { id: 'read', name: '読み込み', path: '/read' },
+]
 </script>
 
 <template>
-
-  <div class="w-screen h-screen bg-[#edf2f7]">
-    <div class="flex flex-col h-full justify-center items-center">
-      <h1 class="flex gap-2 font-bold text-3xl">
-        <img :src="RamenIcon" class="h-10" />
-        <span>CapDB</span>
-      </h1>
-      <div class="m-3 p-3 rounded-lg bg-white">
-        <QrcodeStream @detect="onDetect" :formats="['ean_13']"></QrcodeStream>
-
+  <div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans antialiased">
+    <header class="h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur px-6 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
+          T
+        </div>
+        <span class="text-lg font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+          CapDB
+        </span>
       </div>
-    </div>
+    </header>
+
+    <main class="flex-1 p-6 md:p-10 max-w-5xl mx-auto w-full">
+      <nav class="flex border-b border-slate-800 mb-8 gap-2">
+        <RouterLink
+          v-for="tab in tabs"
+          :key="tab.id"
+          :to="tab.path"
+          class="px-5 py-2.5 text-sm font-medium border-b-2 transition-all -mb-px border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700"
+          active-class="!border-indigo-500 !text-white bg-indigo-500/10 rounded-t-lg"
+        >
+          {{ tab.name }}
+        </RouterLink>
+      </nav>
+
+      <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 md:p-8">
+        <RouterView />
+      </div>
+    </main>
   </div>
 </template>
-
-<style scoped></style>
